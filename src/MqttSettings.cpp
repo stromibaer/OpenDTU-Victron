@@ -3,12 +3,14 @@
  * Copyright (C) 2022 Thomas Basler and others
  */
 #include "MqttSettings.h"
+#include "ArduinoJson.h"
 #include "Configuration.h"
 #include "NetworkSettings.h"
 #include <Hoymiles.h>
 #include <MqttClientSetup.h>
 #include <Ticker.h>
 #include <espMqttClient.h>
+#include "MqttVictronPublishing.h"
 
 #define TOPIC_SUB_LIMIT_PERSISTENT_RELATIVE "limit_persistent_relative"
 #define TOPIC_SUB_LIMIT_PERSISTENT_ABSOLUTE "limit_persistent_absolute"
@@ -50,6 +52,18 @@ void MqttSettingsClass::onMqttConnect(bool sessionPresent)
     mqttClient->subscribe(String(topic + "+/cmd/" + TOPIC_SUB_LIMIT_NONPERSISTENT_ABSOLUTE).c_str(), 0);
     mqttClient->subscribe(String(topic + "+/cmd/" + TOPIC_SUB_POWER).c_str(), 0);
     mqttClient->subscribe(String(topic + "+/cmd/" + TOPIC_SUB_RESTART).c_str(), 0);
+
+    // Check for doing some Victron parts...
+    if (!Configuration.get().Mqtt_Victron_Enabled) {
+        return;
+    }
+    // Loop all inverters and subscribe each for Victron Venus messages
+    for (uint8_t i = 0; i < Hoymiles.getNumInverters(); i++) {
+        auto inv = Hoymiles.getInverterByPos(i);
+
+        String str_serial = inv->serialString();
+        mqttClient->subscribe(String("device/HM" + str_serial + "/DBus").c_str(),0);
+    }
 }
 
 void MqttSettingsClass::onMqttDisconnect(espMqttClientTypes::DisconnectReason reason)
@@ -102,17 +116,66 @@ void MqttSettingsClass::onMqttMessage(const espMqttClientTypes::MessagePropertie
     subtopic = strtok_r(rest, "/", &rest);
     setting = strtok_r(rest, "/", &rest);
 
+    uint64_t serial;
+
     if (serial_str == NULL || subtopic == NULL || setting == NULL) {
+       
+        // Victron message only on startup after subscribe
+        // device/116181045449/DBus = JSON 
+        char* rest = &token_topic[strlen("device/HM")];
+        serial_str = strtok_r(rest, "/", &rest);
+
+        if (serial_str == NULL) {
+            return;
+        }
+
+        serial = strtoull(serial_str, 0, 16);
+        auto inv = Hoymiles.getInverterBySerial(serial);
+
+        if (inv == nullptr) {
+            Serial.print(F("Can not register inverter: "));
+            Serial.println(serial);
+            return;
+        }
+
+        char* strlimit = new char[len + 1];
+        memcpy(strlimit, payload, len);
+        strlimit[len] = '\0';
+        
+        DynamicJsonDocument docDbus(128);
+        deserializeJson(docDbus, strlimit);
+        String portalID = docDbus["portalId"];
+        MqttVictronPublishing.VictronPortalID = portalID;
+
+        DynamicJsonDocument docInstance(64);
+        docInstance = docDbus["deviceInstance"];
+        String deviceInstance = docInstance[serial_str];
+    
+        String inverter = serial_str;
+        MqttVictronPublishing.VictronDeviceInstance.insert({inverter, deviceInstance});
+
+        if (MqttVictronPublishing.VictronDeviceInstance.find(inverter)!=MqttVictronPublishing.VictronDeviceInstance.end()) {
+            String valfound = MqttVictronPublishing.VictronDeviceInstance[inverter];
+            Serial.print(F("Register inverter: "));
+            Serial.print(serial_str);
+            Serial.print(F(" to Victron Venus OS with portalId: "));
+            Serial.print(MqttVictronPublishing.VictronPortalID);
+            Serial.print(F(" and deviceInstance: "));
+            Serial.println(valfound);
+        }
+
+        delete[] strlimit;
+
         return;
     }
 
-    uint64_t serial;
     serial = strtoull(serial_str, 0, 16);
 
     auto inv = Hoymiles.getInverterBySerial(serial);
 
     if (inv == nullptr) {
-        Serial.println(F("Inverter not found"));
+        Serial.print(F("Inverter not found: "));
+        Serial.println(serial);
         return;
     }
 
@@ -245,6 +308,11 @@ void MqttSettingsClass::publishHass(const String& subtopic, const String& payloa
     String topic = Configuration.get().Mqtt_Hass_Topic;
     topic += subtopic;
     mqttClient->publish(topic.c_str(), 0, Configuration.get().Mqtt_Hass_Retain, payload.c_str());
+}
+
+void MqttSettingsClass::publishVictron(const String& topic, const String& payload)
+{
+    mqttClient->publish(topic.c_str(), 0, 1, payload.c_str());
 }
 
 void MqttSettingsClass::init()
