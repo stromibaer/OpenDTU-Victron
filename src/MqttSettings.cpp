@@ -291,6 +291,23 @@ bool MqttSettingsClass::getConnected()
     return mqttClient->connected();
 }
 
+String MqttSettingsClass::getVictronPortalId()
+{
+    return VictronPortalId;
+}
+
+String MqttSettingsClass::getVictronDeviceInstance(String hoyserial)
+{
+    if (VictronDeviceInstance.find(hoyserial)!=VictronDeviceInstance.end()) {
+        return VictronDeviceInstance[hoyserial];
+    } else {
+        Serial.print(F("No Victron deviceInstance found for inverter: "));
+        Serial.println(hoyserial);
+        String ret = hoyserial + "NOdevInstance";
+        return ret;
+    }
+}
+
 String MqttSettingsClass::getPrefix()
 {
     return Configuration.get().Mqtt_Topic;
