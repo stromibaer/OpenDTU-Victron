@@ -18,14 +18,6 @@ public:
     void publishHass(const String& subtopic, const String& payload);
     void publishVictron(const String& hoyserial, const String& payload);
 
-    void publishVictron(const String& hoyserial, const String& payload);
-
-
-    std::map<String, String> VictronDeviceInstance;
- 
-    String getVictronPortalId();
-    String getVictronDeviceInstance(String hoyserial);
-
     String getPrefix();
 
 private:
