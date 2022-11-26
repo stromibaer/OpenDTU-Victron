@@ -23,8 +23,8 @@ void MqttVictronPublishingClass::loop()
         return;
     }
 
-    Serial.print(F("PortalID: "));
-    Serial.println(VictronPortalId);
+    //Serial.print(F("PortalID: "));
+    //Serial.println(VictronPortalId);
 
     if (!Hoymiles.getRadio()->isIdle()) {
         // Hoymiles are ready to go?
