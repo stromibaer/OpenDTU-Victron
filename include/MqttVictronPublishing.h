@@ -13,6 +13,8 @@ public:
     void forceRegister();
     void registerInverter();
 
+    const char* testportal;
+
 private:
     void publishField(std::shared_ptr<InverterAbstract> inv, uint8_t invphase, uint8_t fieldId);
 

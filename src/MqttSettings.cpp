@@ -146,10 +146,8 @@ void MqttSettingsClass::onMqttMessage(const espMqttClientTypes::MessagePropertie
         deserializeJson(docDbus, strlimit);
         
         VictronPortalId = docDbus["portalId"];
+        MqttVictronPublishing.testportal = VictronPortalId;
 
-        Serial.print(F(" Victron Portal ID written: "));
-        Serial.println(VictronPortalId);
-                    
         DynamicJsonDocument docInstance(64);
         docInstance = docDbus["deviceInstance"];
         String deviceInstance = docInstance[serial_str];
