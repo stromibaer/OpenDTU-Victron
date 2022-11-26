@@ -144,8 +144,7 @@ void MqttSettingsClass::onMqttMessage(const espMqttClientTypes::MessagePropertie
         
         DynamicJsonDocument docDbus(64);
         deserializeJson(docDbus, strlimit);
-        String portalID = docDbus["portalID"];
-        MqttVictronPublishing.VictronPortalID = portalID;
+        MqttVictronPublishing.VictronPortalID = docDbus["portalID"];
 
         DynamicJsonDocument docInstance(64);
         docInstance = docDbus["deviceInstance"];
@@ -164,7 +163,7 @@ void MqttSettingsClass::onMqttMessage(const espMqttClientTypes::MessagePropertie
             Serial.println(valfound);
         }
 
-        delete[] strlimit;
+        //delete[] strlimit;
 
         return;
     }
