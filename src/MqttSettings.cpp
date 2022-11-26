@@ -144,7 +144,7 @@ void MqttSettingsClass::onMqttMessage(const espMqttClientTypes::MessagePropertie
         
         DynamicJsonDocument docDbus(64);
         deserializeJson(docDbus, strlimit);
-        MqttVictronPublishing.VictronPortalID = docDbus["portalID"];
+        MqttVictronPublishing.VictronPortalID = docDbus["portalId"];
 
         DynamicJsonDocument docInstance(64);
         docInstance = docDbus["deviceInstance"];
