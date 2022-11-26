@@ -6,7 +6,6 @@
 #include <Ticker.h>
 #include <espMqttClient.h>
 #include <memory>
-#include <map>
 
 class MqttSettingsClass {
 public:
