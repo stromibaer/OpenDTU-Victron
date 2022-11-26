@@ -10,8 +10,6 @@
 
 MqttVictronPublishingClass MqttVictronPublishing;
 
-const char* VictronPortalId;
-
 void MqttVictronPublishingClass::init()
 {
 }
@@ -24,7 +22,7 @@ void MqttVictronPublishingClass::loop()
     }
 
     Serial.print(F("PortalID: "));
-    Serial.println(testportal);
+    Serial.println(VictronPortalID);
 
     if (!Hoymiles.getRadio()->isIdle()) {
         // Hoymiles are ready to go?
@@ -152,17 +150,23 @@ void MqttVictronPublishingClass::publishField(std::shared_ptr<InverterAbstract> 
         double fieldval = double(inv->Statistics()->getChannelFieldValue(0, fieldId));
         double fieldvalue = floor(fieldval * 100.0 + .5) / 100.0;
 
-        String portalid = VictronPortalId;
+        String portalid = VictronPortalID;
         if (portalid == NULL) {
             portalid = "NOportalId";
         }
-        Serial.print(F(" PortalID: "));
-        Serial.print(VictronPortalId);
 
-        String topic_sum, topic_phase, topic_err, topic_maxp;
+        String topic_sum, topic_phase, topic_err, topic_maxp, deviceInstance;
 
         String invSerial = inv->serialString();
-        String deviceInstance = MqttSettings.getVictronDeviceInstance(invSerial);
+
+        if (VictronDeviceInstance.find(invSerial)!=VictronDeviceInstance.end()) {
+            deviceInstance = VictronDeviceInstance[invSerial];
+        } else {
+            Serial.print(F("No Victron deviceInstance found for inverter: "));
+            Serial.println(invSerial);
+            deviceInstance = invSerial + "NOdevInstance";
+        }
+
         String topic = "W/" + portalid + "/pvinverter/" + deviceInstance;
 
         if (fieldId == 4) {

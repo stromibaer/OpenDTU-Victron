@@ -145,22 +145,21 @@ void MqttSettingsClass::onMqttMessage(const espMqttClientTypes::MessagePropertie
         DynamicJsonDocument docDbus(64);
         deserializeJson(docDbus, strlimit);
         
-        VictronPortalId = docDbus["portalId"];
-        MqttVictronPublishing.testportal = VictronPortalId;
+        MqttVictronPublishing.VictronPortalID = docDbus["portalId"];
 
         DynamicJsonDocument docInstance(64);
         docInstance = docDbus["deviceInstance"];
         String deviceInstance = docInstance[serial_str];
     
         String inverter = serial_str;
-        VictronDeviceInstance.insert({inverter, deviceInstance});
+        MqttVictronPublishing.VictronDeviceInstance.insert({inverter, deviceInstance});
 
-        if (VictronDeviceInstance.find(inverter)!=VictronDeviceInstance.end()) {
-            String valfound = VictronDeviceInstance[inverter];
+        if (MqttVictronPublishing.VictronDeviceInstance.find(inverter)!=MqttVictronPublishing.VictronDeviceInstance.end()) {
+            String valfound = MqttVictronPublishing.VictronDeviceInstance[inverter];
             Serial.print(F("Register inverter: "));
             Serial.print(serial_str);
             Serial.print(F(" to Victron Venus OS with portalId: "));
-            Serial.print(VictronPortalId);
+            Serial.print(MqttVictronPublishing.VictronPortalID);
             Serial.print(F(" and deviceInstance: "));
             Serial.println(valfound);
         }
@@ -290,23 +289,6 @@ void MqttSettingsClass::performReconnect()
 bool MqttSettingsClass::getConnected()
 {
     return mqttClient->connected();
-}
-
-String MqttSettingsClass::getVictronPortalId()
-{
-    return VictronPortalId;
-}
-
-String MqttSettingsClass::getVictronDeviceInstance(String hoyserial)
-{
-    if (VictronDeviceInstance.find(hoyserial)!=VictronDeviceInstance.end()) {
-        return VictronDeviceInstance[hoyserial];
-    } else {
-        Serial.print(F("No Victron deviceInstance found for inverter: "));
-        Serial.println(hoyserial);
-        String ret = hoyserial + "NOdevInstance";
-        return ret;
-    }
 }
 
 String MqttSettingsClass::getPrefix()

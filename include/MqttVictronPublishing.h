@@ -13,7 +13,8 @@ public:
     void forceRegister();
     void registerInverter();
 
-    const char* testportal;
+    const char* VictronPortalID;
+    std::map<String, String> VictronDeviceInstance;
 
 private:
     void publishField(std::shared_ptr<InverterAbstract> inv, uint8_t invphase, uint8_t fieldId);
@@ -43,4 +44,3 @@ private:
 };
 
 extern MqttVictronPublishingClass MqttVictronPublishing;
-extern const char* VictronPortalId;
