@@ -41,7 +41,7 @@ private:
     };
 
     bool _wasConnected = false;
-    bool _registerForced = false;
+    bool _registerForced = true;
 };
 
 extern MqttVictronPublishingClass MqttVictronPublishing;
