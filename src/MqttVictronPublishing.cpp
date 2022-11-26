@@ -21,7 +21,9 @@ void MqttVictronPublishingClass::loop()
         return;
     }
 
-    if (!VictronPortalID == NULL) {
+    if (VictronPortalID == NULL) {
+        yield();
+    } else {
         Serial.print(F("PortalID: "));
         Serial.println(VictronPortalID);
     }
