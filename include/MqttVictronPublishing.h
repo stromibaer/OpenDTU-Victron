@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <Hoymiles.h>
 #include <memory>
+#include <map>
 
 class MqttVictronPublishingClass {
 public:
