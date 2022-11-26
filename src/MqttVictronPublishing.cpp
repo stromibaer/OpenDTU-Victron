@@ -4,9 +4,7 @@
  */
 #include "MqttVictronPublishing.h"
 #include "ArduinoJson.h"
-#include "MqttPublishing.h"
 #include "MqttSettings.h"
-#include "NetworkSettings.h"
 
 MqttVictronPublishingClass MqttVictronPublishing;
 
