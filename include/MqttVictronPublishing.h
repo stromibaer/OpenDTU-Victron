@@ -14,7 +14,7 @@ public:
     void forceRegister();
     void registerInverter();
 
-    const char* VictronPortalID;
+    String VictronPortalID;
     std::map<String, String> VictronDeviceInstance;
 
 private:
@@ -41,7 +41,7 @@ private:
     };
 
     bool _wasConnected = false;
-    bool _registerForced = true;
+    bool _registerForced = false;
 };
 
 extern MqttVictronPublishingClass MqttVictronPublishing;

@@ -164,7 +164,7 @@ void MqttSettingsClass::onMqttMessage(const espMqttClientTypes::MessagePropertie
             Serial.println(valfound);
         }
 
-        //delete[] strlimit;
+        delete[] strlimit;
 
         return;
     }
