@@ -28,7 +28,7 @@ void MqttVictronPublishingClass::loop()
 
     if (!Hoymiles.getRadio()->isIdle()) {
         // Hoymiles are ready to go?
-        return;
+        //return;
     }
 
     if (MqttSettings.getConnected() && _registerForced) {
