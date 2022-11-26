@@ -14,7 +14,7 @@ public:
     void forceRegister();
     void registerInverter();
 
-    const char* VictronPortalID;
+    String VictronPortalID;
     std::map<String, String> VictronDeviceInstance;
 
 private:
